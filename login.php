@@ -3,21 +3,28 @@
   session_start();
   
   if($_SERVER["REQUEST_METHOD"] == "POST") {    
-     // username and password sent from form 
+     // email and password sent from form 
      $email = $db->real_escape_string($_POST['email']);
      $password = $db->real_escape_string($_POST['password']); 
+
+     // Get user from database
      $result = $db->query("SELECT email,password FROM users WHERE email = '{$email}'");
      $row = $result->fetch_assoc();
-     
-     $count = mysqli_num_rows($result);
-       
-     if(password_verify($password, $row['password'])) {
+
+     // Check if there is a user with the email specified
+     // Then check if password is valid.
+     if(isset($row) && password_verify($password, $row['password'])) {
+
+        // user is valid store session
         $_SESSION['user'] = $email;
         $_SESSION['isLoggedin'] = true;
         
+        // After redirect to dashboard
         header("location: dashboard.php");
      }else {
+        // if error, show error
         $error = "Your Login Name or Password is invalid";
+        var_dump($error);
      }
   }
   $db->close();

@@ -3,7 +3,9 @@
         include("config.php");
         session_start();
 
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {    
+        if ($_SERVER["REQUEST_METHOD"] == "POST") { 
+
+                // Like add, get all values to edit   
                 $target_dir = 'uploads/';
                 $id = $db->real_escape_string($_POST['id']);
                 $title = $db->real_escape_string($_POST['title']);
@@ -20,7 +22,7 @@
                     $image_to_save = $_FILES["image"]["name"];
 
                 }
-
+                // Update entries in mysql
                 $query = "UPDATE blog_entries 
                         SET title='{$title}',
                             cuisine='{$cuisine}',
@@ -30,24 +32,26 @@
                             image_caption='{$image_caption}'
                     ";
 
-
+                // If there is no image uploaded, don't save
                 if (isset($image_to_save)) {
                     $query .= ", image='{$image_to_save}' ";
                 }
 
                 $query .= "WHERE id='{$id}'";
+                // Update query
                 $db->query($query);
 
                 header('Location: dashboard.php');
 
        } else {
-
+            // Get id to show for blog entry
             if (array_key_exists("id", $_GET)) {
                 $id = $_GET["id"];
                 $result = $db->query("SELECT * FROM blog_entries WHERE id='{$id}'");
                 $item = $result->fetch_assoc();
                 $result->free();
             } else {
+                // If id is not valid redirect to dashboard
                 header('Location: dashboard.php');
             }     
        } 
@@ -68,7 +72,22 @@
     <body>
         <div class="container">
             <div class="row">
-                <?php include("navbar.php"); ?>
+                <nav class="navbar navbar-inverse">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="index.php">PriEATS Dashboard</a>
+                    </div>
+                    <ul class="nav navbar-nav">
+                        <li><a href="about_me.php">About me <span class="sr-only">(current)</span></a></li>
+                        <li><a href="blogs.php">Blogs <span class="sr-only">(current)</span></a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <?php if(isset($_SESSION['isLoggedin'])) { ?>
+                            <li><a href="logout.php">Logout</a></li>
+                        <?php } else { ?>
+                            <li><a href="login.php">Login</a></li>
+                        <?php } ?>
+                    </ul>
+                </nav>
             </div>
             <?php if(isset($_SESSION['isLoggedin'])) { ?>
                 <div class="row">

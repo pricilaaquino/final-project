@@ -6,8 +6,10 @@
         if ($_SERVER["REQUEST_METHOD"] == "POST") {    
                 
                 if (isset($_POST['search'])) {
+                  // SEARCH
                     $title = $db->real_escape_string($_POST['search_title']);
                     $data = [];
+                    // Get entries from search title using wild card search
                    if ($result = $db->query("SELECT * FROM blog_entries WHERE title like '%{$title}%'")) {
                       while ($row = $result->fetch_assoc()) {
                         $data[] = $row;
@@ -16,22 +18,33 @@
                    }
 
                 } else {
-                    $target_dir = 'uploads/';
+                    // ADD BLOG
+                    $target_dir = 'uploads/'; // Folder where pictures get stored
+
+                    // Get string values from the form
                     $title = $db->real_escape_string($_POST['title']);
                     $cuisine = $db->real_escape_string($_POST['cuisine']);
                     $opening_hours = $db->real_escape_string($_POST['opening_hours']);
                     $location = $db->real_escape_string($_POST['location']);
                     $description = $db->real_escape_string($_POST['description']);
                     $image_caption = $db->real_escape_string($_POST['image_caption']);
+                   
+                    // Get the image file
                     $image = $_FILES['image'];
                     $image_to_save = null;
 
-                    if (isset($image) && $image['tmp_name'] !== false) {
+                    // Check if the image file is valid
+                    if (isset($image) && $image['size'] > 0 && $image['tmp_name'] !== false) {
+                        // target file is uploads folder + filename
                         $target_file = $target_dir . basename($_FILES["image"]["name"]);
+                        // Move the file from temporary location in php server to the uploads/ folder
                         move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
+                        // Get image name
                         $image_to_save = $_FILES["image"]["name"];
 
                     }
+
+                    // Insert into database
                     $db->query(
                         "INSERT INTO blog_entries 
                             SET title='{$title}',
@@ -48,10 +61,12 @@
 
        if (!isset($data)) {
             $data = [];
+            // Get all blog entries
            if ($result = $db->query("SELECT * FROM blog_entries")) {
               while ($row = $result->fetch_assoc()) {
                 $data[] = $row;
               }
+              // Free result variable
               $result->free();
            }
        }
@@ -72,7 +87,22 @@
     <body>
         <div class="container">
             <div class="row">
-                <?php include("navbar.php"); ?>
+                <nav class="navbar navbar-inverse">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="index.php">PriEATS Dashboard</a>
+                    </div>
+                    <ul class="nav navbar-nav">
+                        <li><a href="about_me.php">About me <span class="sr-only">(current)</span></a></li>
+                        <li><a href="blogs.php">Blogs <span class="sr-only">(current)</span></a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <?php if(isset($_SESSION['isLoggedin'])) { ?>
+                            <li><a href="logout.php">Logout</a></li>
+                        <?php } else { ?>
+                            <li><a href="login.php">Login</a></li>
+                        <?php } ?>
+                    </ul>
+                </nav>
             </div>
             <?php if(isset($_SESSION['isLoggedin'])) { ?>
                 <div class="row">
