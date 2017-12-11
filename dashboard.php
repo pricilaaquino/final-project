@@ -76,7 +76,7 @@
             </div>
             <?php if(isset($_SESSION['isLoggedin'])) { ?>
                 <div class="row">
-                    <div class="col-md-3 vertical-bar">
+                    <div class="col-md-3 vertical-ba">
                          <form action="" method="POST" class="form-signin" enctype="multipart/form-data">
                               <div class="form-group">
                                 <label for="title">Title</label>
